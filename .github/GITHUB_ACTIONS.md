@@ -1,99 +1,58 @@
 # GitHub Actions Workflows
 
-This repository includes several GitHub Actions workflows for Terraform CI/CD with robust provider signature handling.
-
-## 🚨 **Provider Signature Issue Resolution**
-
-The workflows include comprehensive fallback strategies to handle the `kreuzwerker/docker` provider signature verification error that occurs due to expired OpenPGP keys.
+This repository includes streamlined GitHub Actions workflows for Terraform CI/CD using the kreuzwerker/docker provider with signature verification bypass.
 
 ## Workflows Overview
 
-### 1. `terraform-plan.yml` - Pull Request Planning
-- **Triggers:** Pull requests to main branch
-- **Purpose:** Validates and plans Terraform changes
-- **Features:**
-  - Format checking
-  - Terraform validation
-  - Plan generation
-  - PR comments with plan output
-  - **Provider signature fallback handling**
-
-### 2. `terraform-ci.yml` - Complete CI/CD Pipeline
+### 1. `terraform.yml` - Consolidated CI/CD Pipeline
 - **Triggers:** Push to main, Pull requests
-- **Purpose:** Full CI/CD pipeline with separate jobs
+- **Purpose:** Single matrix-based workflow for all Terraform operations
 - **Features:**
-  - Validation job (format, init, validate)
-  - Plan job (for PRs)
-  - Apply job (for main branch pushes)
-  - Error handling and status reporting
-  - **Multi-strategy provider initialization**
+  - **Matrix Strategy:** Runs validate, plan, and apply jobs based on event type
+  - **Format Validation:** Ensures code follows Terraform standards
+  - **Provider Management:** Uses kreuzwerker/docker with signature bypass
+  - **PR Integration:** Comments on pull requests with plan output
+  - **Auto-Apply:** Automatically applies changes on main branch
+  - **Success Notifications:** Service URLs after deployment
 
-### 3. `terraform-pipeline.yml` - Advanced Pipeline
-- **Triggers:** Push to main, Pull requests
-- **Purpose:** Comprehensive pipeline with dependencies
-- **Features:**
-  - Sequential job execution
-  - PR plan comments
-  - Auto-apply on main branch
-  - Success notifications with service URLs
-  - **Robust provider management**
-
-### 4. `terraform-destroy.yml` - Infrastructure Destruction
+### 2. `terraform-destroy.yml` - Infrastructure Destruction
 - **Triggers:** Manual workflow dispatch
 - **Purpose:** Safe infrastructure destruction
 - **Features:**
   - Confirmation requirement
   - Manual trigger only
   - Destruction notifications
-  - **Provider signature handling**
 
-### 5. `terraform-provider-fix.yml` - Alternative Approach
-- **Triggers:** Push to main, Pull requests
-- **Purpose:** Dedicated workflow with provider signature bypass
-- **Features:**
-  - CLI configuration override
-  - Multiple initialization methods
-  - Comprehensive error handling
+## Matrix Strategy
 
-## 🛠️ **Provider Signature Fallback Strategy**
+The main workflow uses a matrix strategy to run different jobs based on the event type:
 
-Each workflow uses a multi-step approach to handle provider signature issues:
-
-```bash
-# Method 1: Normal init with upgrade
-terraform init -upgrade || {
-  echo "Normal init failed, trying with provider cache bypass..."
-  
-  # Method 2: Clear cache and retry
-  rm -rf .terraform/providers
-  terraform init -upgrade || {
-    echo "Provider signature issue detected, using alternative approach..."
-    
-    # Method 3: Backend bypass
-    terraform init -upgrade -backend=false || {
-      # Method 4: Reconfigure
-      terraform init -reconfigure || terraform init
-    }
-  }
-}
+```yaml
+strategy:
+  matrix:
+    job: [validate, plan, apply]
+    include:
+      - job: validate
+        condition: ${{ always() }}
+      - job: plan
+        condition: ${{ github.event_name == 'pull_request' }}
+      - job: apply
+        condition: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 ```
 
 ## Key Features
 
-### ✅ **Fixed Issues:**
-- **Provider Signature:** Multi-strategy fallback for Docker provider signature issues
-- **Step References:** Fixed step ID references in PR comments
-- **Error Handling:** Added proper error handling and status reporting
-- **Format Checking:** Includes `terraform fmt -check -recursive` validation
-- **Cache Management:** Automatic provider cache clearing when needed
+### ✅ **Provider Management:**
+- **Docker Provider:** Uses `kreuzwerker/docker` (the correct Docker provider)
+- **Signature Bypass:** Uses `-verify-plugins=false` to handle expired GPG keys
+- **Reliable Installation:** Bypasses signature verification issues
 
 ### 🔧 **Workflow Capabilities:**
-- **Format Validation:** Ensures code follows Terraform standards
-- **Provider Management:** Handles Docker provider initialization with fallbacks
+- **Format Validation:** `terraform fmt -check -recursive`
+- **Provider Management:** Clean initialization with `terraform init -upgrade -verify-plugins=false`
 - **PR Integration:** Comments on pull requests with plan output and status
 - **Auto-Apply:** Automatically applies changes on main branch
 - **Manual Destruction:** Safe infrastructure destruction workflow
-- **Robust Error Handling:** Multiple fallback methods for provider issues
 
 ### 📊 **Service URLs:**
 After successful deployment, the workflows provide:
@@ -107,13 +66,13 @@ After successful deployment, the workflows provide:
 1. Create PR with Terraform changes
 2. Workflow automatically runs validation and planning
 3. Plan output is posted as PR comment with status
-4. Provider signature issues are handled automatically
+4. Only validate and plan jobs run
 
 ### For Main Branch:
 1. Push changes to main branch
 2. Workflow validates and applies changes automatically
 3. Success notification includes service URLs
-4. Provider initialization uses fallback strategies
+4. Only validate and apply jobs run
 
 ### For Destruction:
 1. Go to Actions tab
@@ -128,15 +87,20 @@ All workflows use:
 - **Terraform Version:** 1.6.0
 - **Runner:** ubuntu-latest
 - **Docker Provider:** kreuzwerker/docker ~> 3.0
-- **Provider Signature Handling:** Multi-strategy fallback approach
+- **Signature Bypass:** `-verify-plugins=false` flag
+- **Matrix Strategy:** Conditional job execution based on event type
 
-## 🔍 **Troubleshooting**
+## Benefits
 
-If workflows still fail:
+### **Simplified Pipeline:**
+- Single workflow file instead of multiple redundant workflows
+- Matrix strategy reduces duplication
+- Conditional execution based on event type
+- Cleaner GitHub Actions interface
 
-1. **Check the logs** for specific error messages
-2. **Try the alternative workflow** (`terraform-provider-fix.yml`)
-3. **Verify provider versions** in `main.tf`
-4. **Clear GitHub Actions cache** if needed
+### **Reliable Provider:**
+- Uses the correct kreuzwerker/docker provider
+- Bypasses signature verification issues with expired GPG keys
+- Maintains functionality while avoiding signature errors
 
-The workflows are designed to showcase Terraform best practices and provide a complete, robust CI/CD pipeline for infrastructure management with comprehensive provider signature issue handling.
+The workflows are designed to showcase Terraform best practices and provide a complete, reliable CI/CD pipeline for infrastructure management.

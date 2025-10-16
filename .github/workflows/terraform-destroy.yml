@@ -39,17 +39,10 @@ jobs:
 
     - name: Terraform Init
       run: |
-        # Try normal init first
         terraform init -upgrade || {
-          echo "Normal init failed, trying with provider cache bypass..."
-          # Clear any existing provider cache
+          echo "Provider signature issue detected, clearing cache and retrying..."
           rm -rf .terraform/providers
-          # Try init with upgrade again
-          terraform init -upgrade || {
-            echo "Provider signature issue detected, using alternative approach..."
-            # Use a different approach for Docker provider
-            terraform init -upgrade -backend=false || terraform init
-          }
+          terraform init -upgrade || terraform init
         }
       working-directory: ./
 
