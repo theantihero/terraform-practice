@@ -1,4 +1,4 @@
-# GitHub Actions workflow for Terraform destroy
+# GitHub Actions workflow for Terraform Destroy
 # @author Terraform DevOps
 # @date 2025-01-15
 
@@ -7,28 +7,18 @@ name: 'Terraform Destroy'
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Environment to destroy'
+      confirm_destroy:
+        description: 'Type "destroy" to confirm infrastructure destruction'
         required: true
-        default: 'dev'
-        type: choice
-        options:
-        - dev
-        - staging
-        - prod
-      confirmation:
-        description: 'Type "DESTROY" to confirm'
-        required: true
-        type: string
+        default: ''
 
 env:
   TF_VERSION: '1.6.0'
 
 jobs:
   destroy:
-    name: 'Destroy Terraform'
+    name: 'Destroy Terraform Infrastructure'
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
     
     steps:
     - name: Checkout
@@ -39,27 +29,24 @@ jobs:
       with:
         terraform_version: ${{ env.TF_VERSION }}
 
-    - name: Validate Confirmation
+    - name: Confirm Destruction
       run: |
-        if [ "${{ github.event.inputs.confirmation }}" != "DESTROY" ]; then
-          echo "❌ Confirmation failed. Please type 'DESTROY' to confirm."
+        if [ "${{ github.event.inputs.confirm_destroy }}" != "destroy" ]; then
+          echo "❌ Destruction not confirmed. Please type 'destroy' to confirm."
           exit 1
         fi
-        echo "✅ Confirmation validated."
+        echo "✅ Destruction confirmed. Proceeding with terraform destroy..."
 
     - name: Terraform Init
-      run: terraform init
-      working-directory: ./
-
-    - name: Terraform Plan Destroy
-      run: terraform plan -destroy -no-color
+      run: terraform init -upgrade
       working-directory: ./
 
     - name: Terraform Destroy
       run: terraform destroy -auto-approve
       working-directory: ./
 
-    - name: Cleanup State
+    - name: Notify Destruction Complete
       run: |
-        echo "🗑️ Infrastructure destroyed for environment: ${{ github.event.inputs.environment }}"
-        echo "📝 Remember to clean up any remaining resources manually if needed"
+        echo "🗑️ Terraform destroy completed successfully!"
+        echo "⚠️ All infrastructure has been destroyed!"
+        echo "💡 Remember to clean up any remaining Docker volumes if needed."
