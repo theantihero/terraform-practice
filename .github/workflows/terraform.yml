@@ -20,6 +20,7 @@ on:
 
 env:
   TF_VERSION: '1.13.4'
+  TF_VAR_docker_host: 'unix:///var/run/docker.sock'
 
 jobs:
   validate:
@@ -29,6 +30,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -66,6 +70,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -122,6 +129,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3

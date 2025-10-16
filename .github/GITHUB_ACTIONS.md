@@ -49,6 +49,7 @@ jobs:
 ### ✅ **Provider Management:**
 - **Docker Provider:** Uses `kreuzwerker/docker` version 3.0.2 (pinned for stability)
 - **Terraform Version:** Updated to 1.13.4 with updated GPG keys
+- **Docker Configuration:** Configurable Docker host for CI/CD environments
 - **Signature Handling:** Multi-strategy fallback for provider installation issues
 
 ### 🔧 **Workflow Capabilities:**
@@ -85,12 +86,21 @@ After successful deployment, the workflows provide:
 4. Type "destroy" to confirm
 5. Infrastructure will be destroyed safely
 
+## Docker Configuration
+
+The workflows automatically configure Docker for CI/CD environments:
+
+- **Local Development:** Uses `npipe:////./pipe/docker_engine` (Windows) or `unix:///var/run/docker.sock` (Linux)
+- **GitHub Actions:** Uses `unix:///var/run/docker.sock` via `TF_VAR_docker_host` environment variable
+- **Docker Buildx:** Set up automatically for container operations
+
 ## Configuration
 
 All workflows use:
 - **Terraform Version:** 1.13.4
 - **Runner:** ubuntu-latest
 - **Docker Provider:** kreuzwerker/docker 3.0.2 (pinned version)
+- **Docker Host:** Configurable via `TF_VAR_docker_host` environment variable
 - **Signature Handling:** Multi-strategy fallback approach
 - **Conditional Execution:** Job execution based on event type
 

@@ -17,6 +17,13 @@ variable "network_subnet" {
   default     = "172.20.0.0/16"
 }
 
+# Docker Configuration
+variable "docker_host" {
+  description = "Docker daemon host to connect to"
+  type        = string
+  default     = "npipe:////./pipe/docker_engine"
+}
+
 # Project Configuration
 variable "environment" {
   description = "Environment name (dev, staging, prod)"
