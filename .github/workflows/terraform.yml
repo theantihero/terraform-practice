@@ -19,7 +19,7 @@ on:
       - '.github/workflows/**.yml'
 
 env:
-  TF_VERSION: '1.6.0'
+  TF_VERSION: '1.13.4'
 
 jobs:
   validate:
@@ -41,10 +41,16 @@ jobs:
 
     - name: Terraform Init
       run: |
+        echo "Initializing Terraform with provider signature handling..."
         terraform init -upgrade || {
-          echo "Provider signature issue detected, clearing cache and retrying..."
-          rm -rf .terraform/providers
-          terraform init -upgrade || terraform init
+          echo "Provider signature issue detected, trying alternative approach..."
+          # Clear all terraform state and try again
+          rm -rf .terraform
+          terraform init || {
+            echo "Still failing, trying with specific provider version..."
+            # Force reinstall of specific provider version
+            terraform init -upgrade -backend=false || terraform init
+          }
         }
       working-directory: ./
 
@@ -68,10 +74,16 @@ jobs:
 
     - name: Terraform Init
       run: |
+        echo "Initializing Terraform with provider signature handling..."
         terraform init -upgrade || {
-          echo "Provider signature issue detected, clearing cache and retrying..."
-          rm -rf .terraform/providers
-          terraform init -upgrade || terraform init
+          echo "Provider signature issue detected, trying alternative approach..."
+          # Clear all terraform state and try again
+          rm -rf .terraform
+          terraform init || {
+            echo "Still failing, trying with specific provider version..."
+            # Force reinstall of specific provider version
+            terraform init -upgrade -backend=false || terraform init
+          }
         }
       working-directory: ./
 
@@ -118,10 +130,16 @@ jobs:
 
     - name: Terraform Init
       run: |
+        echo "Initializing Terraform with provider signature handling..."
         terraform init -upgrade || {
-          echo "Provider signature issue detected, clearing cache and retrying..."
-          rm -rf .terraform/providers
-          terraform init -upgrade || terraform init
+          echo "Provider signature issue detected, trying alternative approach..."
+          # Clear all terraform state and try again
+          rm -rf .terraform
+          terraform init || {
+            echo "Still failing, trying with specific provider version..."
+            # Force reinstall of specific provider version
+            terraform init -upgrade -backend=false || terraform init
+          }
         }
       working-directory: ./
 

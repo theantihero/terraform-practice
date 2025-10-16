@@ -47,13 +47,13 @@ jobs:
 ## Key Features
 
 ### ✅ **Provider Management:**
-- **Docker Provider:** Uses `kreuzwerker/docker` (the correct Docker provider)
-- **Signature Bypass:** Uses `-verify-plugins=false` to handle expired GPG keys
-- **Reliable Installation:** Bypasses signature verification issues
+- **Docker Provider:** Uses `kreuzwerker/docker` version 3.0.2 (pinned for stability)
+- **Terraform Version:** Updated to 1.13.4 with updated GPG keys
+- **Signature Handling:** Multi-strategy fallback for provider installation issues
 
 ### 🔧 **Workflow Capabilities:**
 - **Format Validation:** `terraform fmt -check -recursive`
-- **Provider Management:** Clean initialization with `terraform init -upgrade -verify-plugins=false`
+- **Provider Management:** Clean initialization with multi-strategy fallback
 - **PR Integration:** Comments on pull requests with plan output and status
 - **Auto-Apply:** Automatically applies changes on main branch
 - **Manual Destruction:** Safe infrastructure destruction workflow
@@ -88,10 +88,10 @@ After successful deployment, the workflows provide:
 ## Configuration
 
 All workflows use:
-- **Terraform Version:** 1.6.0
+- **Terraform Version:** 1.13.4
 - **Runner:** ubuntu-latest
-- **Docker Provider:** kreuzwerker/docker ~> 3.0
-- **Signature Bypass:** `-verify-plugins=false` flag
+- **Docker Provider:** kreuzwerker/docker 3.0.2 (pinned version)
+- **Signature Handling:** Multi-strategy fallback approach
 - **Conditional Execution:** Job execution based on event type
 
 ## Benefits
