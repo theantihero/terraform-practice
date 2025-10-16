@@ -23,9 +23,9 @@ This repository includes streamlined GitHub Actions workflows for Terraform CI/C
   - Manual trigger only
   - Destruction notifications
 
-## Conditional Job Execution
+## Job Dependencies and Execution Flow
 
-The main workflow uses separate jobs with conditional execution based on the event type:
+The main workflow uses job dependencies to ensure proper execution order:
 
 ```yaml
 jobs:
@@ -36,13 +36,20 @@ jobs:
   plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    needs: validate  # Only runs if validate passes
     
   apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
+    needs: [validate, plan]  # Only runs if both validate and plan pass
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 ```
+
+### Execution Flow:
+1. **Validate** always runs first
+2. **Plan** only runs if validate passes
+3. **Apply** only runs if both validate and plan pass (and on main branch)
+4. If any job fails, subsequent jobs are skipped
 
 ## Key Features
 
@@ -55,9 +62,10 @@ jobs:
 ### 🔧 **Workflow Capabilities:**
 - **Format Validation:** `terraform fmt -check -recursive`
 - **Provider Management:** Clean initialization with multi-strategy fallback
+- **Job Dependencies:** Validate must pass before plan/apply execution
 - **PR Integration:** Comments on pull requests with plan output and status
-- **Auto-Apply:** Automatically applies changes on main branch
-- **Manual Destruction:** Safe infrastructure destruction workflow
+- **Auto-Apply:** Automatically applies changes on main branch (after validation)
+- **Manual Destruction:** Safe infrastructure destruction workflow with validation
 
 ### 📊 **Service URLs:**
 After successful deployment, the workflows provide:
@@ -69,15 +77,15 @@ After successful deployment, the workflows provide:
 
 ### For Pull Requests:
 1. Create PR with Terraform changes
-2. Workflow automatically runs validation and planning
+2. Workflow automatically runs validation, planning, and posts plan as PR comment
 3. Plan output is posted as PR comment with status
 4. Only validate and plan jobs run
 
 ### For Main Branch:
 1. Push changes to main branch
-2. Workflow validates and applies changes automatically
+2. Workflow validates, plans, and applies changes automatically
 3. Success notification includes service URLs
-4. Only validate and apply jobs run
+4. All jobs run: validate, plan, and apply
 
 ### For Destruction:
 1. Go to Actions tab

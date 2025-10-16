@@ -65,7 +65,7 @@ jobs:
   plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    needs: validate
     
     steps:
     - name: Checkout
@@ -101,6 +101,7 @@ jobs:
       continue-on-error: true
 
     - name: Comment Plan on PR
+      if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
@@ -124,6 +125,7 @@ jobs:
   apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
+    needs: [validate, plan]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
