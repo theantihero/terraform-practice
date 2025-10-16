@@ -19,8 +19,8 @@ resource "docker_image" "grafana" {
 }
 
 resource "docker_container" "grafana" {
-  name  = "grafana"
-  image = docker_image.grafana.name
+  name    = "grafana"
+  image   = docker_image.grafana.name
   restart = "always"
 
   networks_advanced {
@@ -65,11 +65,11 @@ resource "docker_container" "grafana" {
     container_path = "/var/lib/grafana"
   }
 
-      # Datasource provisioning
-      volumes {
-        host_path      = "${abspath(path.module)}/../../config/grafana/datasources-simple.yml"
-        container_path = "/etc/grafana/provisioning/datasources/datasources.yml"
-      }
+  # Datasource provisioning
+  volumes {
+    host_path      = "${abspath(path.module)}/../../config/grafana/datasources-simple.yml"
+    container_path = "/etc/grafana/provisioning/datasources/datasources.yml"
+  }
 
   # Dashboard provisioning
   volumes {

@@ -16,7 +16,7 @@ terraform {
 # Docker network for observability stack
 resource "docker_network" "observability_network" {
   name = var.network_name
-  
+
   # Enable IPAM for custom subnet
   ipam_config {
     subnet = var.network_subnet

@@ -20,8 +20,8 @@ resource "docker_image" "sample_app" {
 
 # Sample application container 1
 resource "docker_container" "sample_app_1" {
-  name  = "sample-app-1"
-  image = docker_image.sample_app.name
+  name    = "sample-app-1"
+  image   = docker_image.sample_app.name
   restart = "always"
 
   networks_advanced {
@@ -59,22 +59,22 @@ resource "docker_container" "sample_app_1" {
 
   # Working directory and command
   working_dir = "/app"
-  command = ["sh", "-c", "npm install && node app.js"]
+  command     = ["sh", "-c", "npm install && node app.js"]
 
   # Health check
   healthcheck {
-    test     = ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-    interval = "30s"
-    timeout  = "3s"
-    retries  = 3
+    test         = ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+    interval     = "30s"
+    timeout      = "3s"
+    retries      = 3
     start_period = "30s"
   }
 }
 
 # Sample application container 2
 resource "docker_container" "sample_app_2" {
-  name  = "sample-app-2"
-  image = docker_image.sample_app.name
+  name    = "sample-app-2"
+  image   = docker_image.sample_app.name
   restart = "always"
 
   networks_advanced {
@@ -112,14 +112,14 @@ resource "docker_container" "sample_app_2" {
 
   # Working directory and command
   working_dir = "/app"
-  command = ["sh", "-c", "npm install && node app.js"]
+  command     = ["sh", "-c", "npm install && node app.js"]
 
   # Health check
   healthcheck {
-    test     = ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-    interval = "30s"
-    timeout  = "3s"
-    retries  = 3
+    test         = ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+    interval     = "30s"
+    timeout      = "3s"
+    retries      = 3
     start_period = "30s"
   }
 }

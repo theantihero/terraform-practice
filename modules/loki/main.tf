@@ -19,8 +19,8 @@ resource "docker_image" "loki" {
 }
 
 resource "docker_container" "loki" {
-  name  = "loki"
-  image = docker_image.loki.name
+  name    = "loki"
+  image   = docker_image.loki.name
   restart = "always"
 
   networks_advanced {
@@ -70,8 +70,8 @@ resource "docker_image" "promtail" {
 }
 
 resource "docker_container" "promtail" {
-  name  = "promtail"
-  image = docker_image.promtail.name
+  name    = "promtail"
+  image   = docker_image.promtail.name
   restart = "always"
 
   networks_advanced {

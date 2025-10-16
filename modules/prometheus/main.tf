@@ -19,8 +19,8 @@ resource "docker_image" "prometheus" {
 }
 
 resource "docker_container" "prometheus" {
-  name  = "prometheus"
-  image = docker_image.prometheus.name
+  name    = "prometheus"
+  image   = docker_image.prometheus.name
   restart = "always"
 
   networks_advanced {
@@ -63,8 +63,8 @@ resource "docker_image" "cadvisor" {
 }
 
 resource "docker_container" "cadvisor" {
-  name  = "cadvisor"
-  image = docker_image.cadvisor.name
+  name    = "cadvisor"
+  image   = docker_image.cadvisor.name
   restart = "always"
 
   networks_advanced {
@@ -108,8 +108,8 @@ resource "docker_image" "node_exporter" {
 }
 
 resource "docker_container" "node_exporter" {
-  name  = "node-exporter"
-  image = docker_image.node_exporter.name
+  name    = "node-exporter"
+  image   = docker_image.node_exporter.name
   restart = "always"
 
   networks_advanced {
