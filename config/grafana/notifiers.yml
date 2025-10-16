@@ -1,0 +1,73 @@
+# Grafana notification channels configuration
+# @author Terraform DevOps
+# @date 2025-01-15
+
+apiVersion: 1
+
+notifiers:
+  - name: "Terraform DevOps Team"
+    type: "email"
+    uid: "terraform-email"
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    settings:
+      addresses: "admin@terraform-devops.local"
+      singleEmail: true
+      subject: "[Terraform Alert] {{ .GroupLabels.alertname }}"
+      message: |
+        {{ range .Alerts }}
+        **Alert:** {{ .Annotations.summary }}
+        **Description:** {{ .Annotations.description }}
+        **Severity:** {{ .Labels.severity }}
+        **Instance:** {{ .Labels.instance }}
+        **Status:** {{ .Status }}
+        **Started:** {{ .StartsAt }}
+        {{ end }}
+
+  - name: "Slack Integration"
+    type: "slack"
+    uid: "terraform-slack"
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    settings:
+      url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+      channel: "#terraform-alerts"
+      title: "[Terraform Alert] {{ .GroupLabels.alertname }}"
+      text: |
+        {{ range .Alerts }}
+        🚨 **{{ .Annotations.summary }}**
+        📝 {{ .Annotations.description }}
+        🔴 Severity: {{ .Labels.severity }}
+        🖥️ Instance: {{ .Labels.instance }}
+        ⏰ Started: {{ .StartsAt }}
+        {{ end }}
+      username: "Terraform Bot"
+      icon_emoji: ":terraform:"
+
+  - name: "Webhook Integration"
+    type: "webhook"
+    uid: "terraform-webhook"
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    settings:
+      url: "http://webhook-receiver:8080/alerts"
+      httpMethod: "POST"
+      username: ""
+      password: ""
+      title: "Terraform Alert"
+      text: |
+        {
+          "alertname": "{{ .GroupLabels.alertname }}",
+          "summary": "{{ .Annotations.summary }}",
+          "description": "{{ .Annotations.description }}",
+          "severity": "{{ .Labels.severity }}",
+          "instance": "{{ .Labels.instance }}",
+          "status": "{{ .Status }}",
+          "startsAt": "{{ .StartsAt }}"
+        }

@@ -1,0 +1,65 @@
+# GitHub Actions workflow for Terraform destroy
+# @author Terraform DevOps
+# @date 2025-01-15
+
+name: 'Terraform Destroy'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+      confirmation:
+        description: 'Type "DESTROY" to confirm'
+        required: true
+        type: string
+
+env:
+  TF_VERSION: '1.6.0'
+
+jobs:
+  destroy:
+    name: 'Destroy Terraform'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Validate Confirmation
+      run: |
+        if [ "${{ github.event.inputs.confirmation }}" != "DESTROY" ]; then
+          echo "❌ Confirmation failed. Please type 'DESTROY' to confirm."
+          exit 1
+        fi
+        echo "✅ Confirmation validated."
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ./
+
+    - name: Terraform Plan Destroy
+      run: terraform plan -destroy -no-color
+      working-directory: ./
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
+      working-directory: ./
+
+    - name: Cleanup State
+      run: |
+        echo "🗑️ Infrastructure destroyed for environment: ${{ github.event.inputs.environment }}"
+        echo "📝 Remember to clean up any remaining resources manually if needed"

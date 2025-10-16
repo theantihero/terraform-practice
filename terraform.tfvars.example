@@ -1,0 +1,92 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and modify as needed
+# @author Terraform DevOps
+# @date 2025-01-15
+
+# =============================================================================
+# NETWORK CONFIGURATION
+# =============================================================================
+network_name   = "observability_network"
+network_subnet = "172.20.0.0/16"
+
+# =============================================================================
+# PROJECT CONFIGURATION
+# =============================================================================
+environment  = "dev"                    # Options: dev, staging, prod
+project_name = "terraform-observability"
+
+# =============================================================================
+# GRAFANA CONFIGURATION
+# =============================================================================
+
+# Authentication & Security
+grafana_admin_user     = "admin"
+grafana_admin_password = "admin123"     # Change this in production!
+grafana_secret_key     = "SW2YcwTIb9zpOOhoPsMm"  # Generate a secure key!
+
+# Server Configuration
+grafana_protocol           = "http"     # Options: http, https
+grafana_port              = 3000
+grafana_domain            = "localhost"
+grafana_root_url          = "http://localhost:3000/"
+grafana_serve_from_sub_path = false
+
+# User Management
+grafana_allow_signup        = false
+grafana_allow_org_create    = false
+grafana_auto_assign_org     = true
+grafana_auto_assign_org_role = "Viewer"  # Options: Viewer, Editor, Admin
+
+# Features & Plugins
+grafana_plugins            = ""
+grafana_default_dashboard  = "/etc/grafana/provisioning/dashboards/containers-dashboard.json"
+grafana_feature_toggles    = "ngalert"
+
+# Analytics & Updates
+grafana_analytics_reporting = false
+grafana_check_updates      = false
+grafana_disable_gravatar   = true
+
+# Logging
+grafana_log_level = "info"  # Options: debug, info, warn, error
+grafana_log_mode  = "console"  # Options: console, file, syslog
+
+# Unified Alerting
+grafana_unified_alerting_enabled        = true
+grafana_alerting_min_interval          = "10s"
+grafana_alerting_evaluation_interval   = "15s"
+
+# =============================================================================
+# LOKI CONFIGURATION
+# =============================================================================
+
+# Server Configuration
+loki_http_port = 3100                   # HTTP port for Loki server
+loki_grpc_port = 9096                   # gRPC port for Loki server
+loki_log_level = "info"                 # Options: debug, info, warn, error
+
+# Storage Configuration
+loki_storage_path        = "/loki"      # Storage path for Loki data
+loki_replication_factor  = 1            # Replication factor for Loki
+
+# Limits Configuration
+loki_max_streams_per_user        = 0    # Maximum streams per user (0 = unlimited)
+loki_max_line_size              = 256000 # Maximum line size in bytes
+loki_max_query_parallelism      = 32    # Maximum query parallelism
+loki_max_query_length           = "721h" # Maximum query length
+loki_max_query_series           = 500   # Maximum query series
+loki_max_entries_limit_per_query = 5000 # Maximum entries limit per query
+
+# Cache Configuration
+loki_cache_max_size_items  = 1024       # Maximum cache size in items
+loki_cache_max_size_bytes  = 102400     # Maximum cache size in bytes
+loki_cache_validity        = "24h"      # Cache validity period
+
+# Analytics Configuration
+loki_analytics_enabled = false          # Enable analytics reporting
+
+# =============================================================================
+# SAMPLE APPLICATION CONFIGURATION
+# =============================================================================
+sample_app_instances   = 2              # Number of sample app instances (1-10)
+sample_app_port_start  = 3001           # Starting port for sample applications

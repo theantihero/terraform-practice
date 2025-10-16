@@ -1,0 +1,21 @@
+{
+  "name": "sample-observability-app",
+  "version": "1.0.0",
+  "description": "Sample Node.js application for demonstrating Grafana + Prometheus + Loki stack",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": ["observability", "prometheus", "grafana", "loki", "metrics", "logging"],
+  "author": "Terraform DevOps",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": null,
+  "title": "Minimal Test Dashboard",
+  "tags": ["test"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Prometheus Status",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up",
+          "datasource": {
+            "type": "prometheus"
+          }
+        }
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "5s"
+}
