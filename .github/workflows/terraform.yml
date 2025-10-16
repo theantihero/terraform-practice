@@ -22,20 +22,9 @@ env:
   TF_VERSION: '1.6.0'
 
 jobs:
-  terraform:
-    name: 'Terraform ${{ matrix.job }}'
+  validate:
+    name: 'Terraform Validate'
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        job: [validate, plan, apply]
-        include:
-          - job: validate
-            condition: ${{ always() }}
-          - job: plan
-            condition: ${{ github.event_name == 'pull_request' }}
-          - job: apply
-            condition: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     
     steps:
     - name: Checkout
@@ -47,7 +36,6 @@ jobs:
         terraform_version: ${{ env.TF_VERSION }}
 
     - name: Terraform Format Check
-      if: matrix.job == 'validate'
       run: terraform fmt -check -recursive
       working-directory: ./
 
@@ -61,29 +49,39 @@ jobs:
       working-directory: ./
 
     - name: Terraform Validate
-      if: matrix.job == 'validate'
       run: terraform validate
       working-directory: ./
 
+  plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Terraform Init
+      run: |
+        terraform init -upgrade || {
+          echo "Provider signature issue detected, clearing cache and retrying..."
+          rm -rf .terraform/providers
+          terraform init -upgrade || terraform init
+        }
+      working-directory: ./
+
     - name: Terraform Plan
-      if: matrix.job == 'plan'
       id: terraform-plan
       run: terraform plan -no-color
       working-directory: ./
       continue-on-error: true
 
-    - name: Terraform Apply
-      if: matrix.job == 'apply'
-      run: terraform apply -auto-approve
-      working-directory: ./
-
-    - name: Terraform Output
-      if: matrix.job == 'apply'
-      run: terraform output
-      working-directory: ./
-
     - name: Comment Plan on PR
-      if: matrix.job == 'plan' && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
@@ -104,8 +102,38 @@ jobs:
             body: output
           })
 
+  apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Terraform Init
+      run: |
+        terraform init -upgrade || {
+          echo "Provider signature issue detected, clearing cache and retrying..."
+          rm -rf .terraform/providers
+          terraform init -upgrade || terraform init
+        }
+      working-directory: ./
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: ./
+
+    - name: Terraform Output
+      run: terraform output
+      working-directory: ./
+
     - name: Notify Success
-      if: matrix.job == 'apply'
       run: |
         echo "✅ Terraform apply completed successfully!"
         echo "🚀 Observability stack is now deployed!"

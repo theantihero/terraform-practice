@@ -6,9 +6,9 @@ This repository includes streamlined GitHub Actions workflows for Terraform CI/C
 
 ### 1. `terraform.yml` - Consolidated CI/CD Pipeline
 - **Triggers:** Push to main, Pull requests
-- **Purpose:** Single matrix-based workflow for all Terraform operations
+- **Purpose:** Single workflow with conditional job execution
 - **Features:**
-  - **Matrix Strategy:** Runs validate, plan, and apply jobs based on event type
+  - **Conditional Jobs:** Runs validate, plan, and apply jobs based on event type
   - **Format Validation:** Ensures code follows Terraform standards
   - **Provider Management:** Uses kreuzwerker/docker with signature bypass
   - **PR Integration:** Comments on pull requests with plan output
@@ -23,21 +23,25 @@ This repository includes streamlined GitHub Actions workflows for Terraform CI/C
   - Manual trigger only
   - Destruction notifications
 
-## Matrix Strategy
+## Conditional Job Execution
 
-The main workflow uses a matrix strategy to run different jobs based on the event type:
+The main workflow uses separate jobs with conditional execution based on the event type:
 
 ```yaml
-strategy:
-  matrix:
-    job: [validate, plan, apply]
-    include:
-      - job: validate
-        condition: ${{ always() }}
-      - job: plan
-        condition: ${{ github.event_name == 'pull_request' }}
-      - job: apply
-        condition: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+jobs:
+  validate:
+    name: 'Terraform Validate'
+    runs-on: ubuntu-latest
+    
+  plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+  apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 ```
 
 ## Key Features
@@ -88,14 +92,14 @@ All workflows use:
 - **Runner:** ubuntu-latest
 - **Docker Provider:** kreuzwerker/docker ~> 3.0
 - **Signature Bypass:** `-verify-plugins=false` flag
-- **Matrix Strategy:** Conditional job execution based on event type
+- **Conditional Execution:** Job execution based on event type
 
 ## Benefits
 
 ### **Simplified Pipeline:**
 - Single workflow file instead of multiple redundant workflows
-- Matrix strategy reduces duplication
-- Conditional execution based on event type
+- Conditional job execution reduces duplication
+- Event-based job triggering
 - Cleaner GitHub Actions interface
 
 ### **Reliable Provider:**
